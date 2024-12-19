@@ -1,54 +1,83 @@
 const { publisherModel } = require('../schemas/PublisherSchema.js');
+const {
+    publisherPostService,
+    publishersGetService,
+    publisherGetService,
+    publisherUpdateService,
+    publisherDeleteService,
+} = require('../services/publisherServices.js');
+const { cuilVal } = require('../helpers/cuilValidator.js');
 
 
-const publisherPostController = async (name, cuil, address) => {
+const publisherPostController = async (req, res) => {
 
-    const newPublisher = await publisherModel.create({
+    const {name, cuil, address} = req.body;
+
+    if(!name|| !cuil || !address) return res.status(400).send("Faltan datos");
+
+    const validCuil = cuilVal(cuil)
+    if(!validCuil) return res.status(400).send("Datos incorrectos");
+
+    const publisher = await publisherPostService(name, validCuil, address);
+    if(!publisher) return res.status(400).send(publisher)
     
-        name: name,
-        cuil: cuil,
-        address: address
-    })
-
-    return newPublisher
+    return res.status(201).send(publisher)
 }
 
-const publishersGetController = async () => {
 
-    const publishers = await publisherModel.find().exec();
+const publishersGetController = async (req, res) => {
 
-    return publishers
+    const publishers = await publishersGetService();
+
+    if(!publishers) return res.status(404).send(publishers)
+    
+    return res.status(200).send(publishers)
+       
 }
 
-const publisherGetController = async (authorId) => {
 
-    const publisher = await publisherModel.findById(authorId).exec();
+const publisherGetController = async (req, res) => {
 
-    return publisher
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
+
+    const publisher = await publisherGetService(id);
+    if(!publisher) return res.status(404).send(publisher)
+
+    return res.status(200).send(publisher)
 }
  
-const publisherUpdateController = async (authorId, forUpdateData) => {
+const publisherUpdateController = async (req, res) => {
 
-    const newPublisherData = await publisherModel.updateOne({
-        _id: authorId
-    },{
-        name: forUpdateData.name,
-        cuil: forUpdateData.cuil,
-        address: forUpdateData.address
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
+    const {name, cuil, address} = req.body;
 
-    });
+    const validCuil = cuilVal(cuil)
+    if(!validCuil) return res.status(400).send("Datos incorrectos");
 
-    return newPublisherData
+    const updatedData = {
+        name,
+        validCuil,
+        address
+    }
+
+    const publisherUpdate = await publisherUpdateService(id, updatedData)
+    if(!publisherUpdate) return res.status(400).send(publisherUpdate)
+
+    return res.status(200).send(publisherUpdate)
 }
 
 
-const publisherDeleteController = async (authorId) => {
+const publisherDeleteController = async (req, res) => {
 
-    const deletePublisher = await publisherModel.deleteOne({
-        _id: authorId
-    });
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
+        
+    const deletePublisher = await publisherDeleteService(id);
+    if(!deletePublisher) return res.status(404).send(deletePublisher);
 
-    return deletePublisher
+    return res.status(200).send(deletePublisher)
 }
 
 

@@ -12,60 +12,17 @@ const publishersRouter = Router();
 
 
 
-publishersRouter.post("/", async (req, res) => {
+publishersRouter.post("/", publisherPostController);
 
-    const {name, cuil, address} = req.body;
-
-    const publisher = await publisherPostController(name, cuil, address);
-    
-    return res.status(200).send(publisher)
-   
-});
-
-publishersRouter.get("/", async (req, res) => {
-
-    const publishers = await publishersGetController();
-    
-    return res.status(200).send(publishers)
-       
-})
+publishersRouter.get("/", publishersGetController);
 
 
-publishersRouter.get("/:id", async (req, res) => {
-
-    const {id} = req.params;
-
-    const publisher = await publisherGetController(id);
-
-    return res.status(200).send(publisher)
-   
-})
+publishersRouter.get("/:id", publisherGetController)
 
 
-publishersRouter.put("/:id", async (req, res) => {
+publishersRouter.put("/:id", publisherUpdateController)
 
-    const {id} = req.params;
-    const {name, cuil, address} = req.body;
-
-    const updatedData = {
-        name,
-        cuil,
-        address
-    }
-
-    const publisherUpdate = await publisherUpdateController(id, updatedData)
-
-    return res.status(200).send(publisherUpdate)
-})
-
-publishersRouter.delete("/:id", async (req, res) => {
-
-    const {id} = req.params;
-
-    const deletePublisher = await publisherDeleteController(id);
-
-    return res.status(200).send(deletePublisher)
-})
+publishersRouter.delete("/:id", publisherDeleteController)
 module.exports = {
     publishersRouter,
 }
