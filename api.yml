@@ -1,0 +1,18 @@
+openapi: 3.0.0
+info:
+  title: library API
+  version: 1.0.0
+paths:
+  /publishers/:
+    get:
+      summary: publishers list
+      responses:
+        "200":
+          description: publishers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ./schemas/publishers.yml
+    

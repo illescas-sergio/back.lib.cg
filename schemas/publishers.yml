@@ -1,0 +1,8 @@
+type: object
+properties:
+  name:
+    type: string
+  cuil:
+    type: string
+  address:
+    type: string
