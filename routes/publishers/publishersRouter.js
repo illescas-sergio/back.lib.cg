@@ -23,6 +23,8 @@ publishersRouter.get("/:id", publisherGetController)
 publishersRouter.put("/:id", publisherUpdateController)
 
 publishersRouter.delete("/:id", publisherDeleteController)
+
+
 module.exports = {
     publishersRouter,
 }
