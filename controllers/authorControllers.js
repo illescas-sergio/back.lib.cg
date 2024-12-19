@@ -1,56 +1,87 @@
 const { authorModel } = require('../schemas/AuthorSchema.js');
+const { 
+    authorsGetService,
+    authorGetService,
+    authorPostService,
+    authorUpdateService,
+    authorDeleteService
+} = require('../services/authorServices.js');
+const {dniVal} = require('../helpers/dniValidator.js');
 
 
-const authorPostController = async (first_name, last_name, dni, country) => {
+const authorPostController = async (req, res) => {
 
-    const newAuthor = await authorModel.create({
+    const {first_name, last_name, dni, country} = req.body;
+
+    if(!first_name || !last_name || !dni || !country) return res.status(400).send("Faltan datos");
+
+    const validDni = dniVal(dni)
+    if(!validDni) return res.status(400).send("Datos incorrectos");
+
+    const author = await authorPostService(first_name, last_name, validDni, country)
+    if(!author) return res.status(400).send(author)
+
+    return res.status(201).send(author)
+}
+
+
+
+const authorsGetController = async (req, res) => {
+
+    const authors = await authorsGetService();
     
-        first_name: first_name,
-        last_name: last_name,
-        dni: dni,
-        country: country
+    if(!authors) return res.status(404).send(authors)
 
-    })
+    return res.status(200).send(authors)
 
-    return newAuthor
 }
 
-const authorsGetController = async () => {
+const authorGetController = async (req, res) => {
 
-    const authors = await authorModel.find().exec();
+    const {id} = req.params;
 
-    return authors
-}
+    const author = await authorGetService(id);
 
-const authorGetController = async (authorId) => {
-
-    const author = await authorModel.findById(authorId).exec();
-
-    return author
+    return res.status(200).send(author)
+   
 }
  
-const authorUpdateController = async (authorId, forUpdateData) => {
+const authorUpdateController = async (req, res) => {
 
-    const newAuthorData = await authorModel.updateOne({
-        _id: authorId
-    },{
-        first_name: forUpdateData.first_name,
-        last_name: forUpdateData.last_name,
-        dni: forUpdateData.dni,
-        country: forUpdateData.country
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
 
-    });
+    const {first_name, last_name, dni, country} = req.body;
+    if(!first_name || !last_name || !dni || !country) return res.status(400).send("Faltan datos");
 
-    return newAuthorData
+    const validDni = dniVal(dni)
+    if(!validDni) return res.status(400).send("Datos incorrectos");
+
+    const updatedData = {
+        first_name,
+        last_name,
+        dni,
+        country
+    }
+
+    const authorUpdate = await authorUpdateService(id, updatedData)
+    if(!authorUpdate) return res.status(400).send(authorUpdate)
+
+
+    return res.status(200).send(authorUpdate)
 }
 
-const authorDeleteController = async (authorId) => {
+const authorDeleteController = async (req, res) => {
 
-    const deleteAuthor = await authorModel.deleteOne({
-        _id: authorId
-    });
+    const {id} = req.params;
 
-    return deleteAuthor
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
+
+    const deleteAuthor = await authorDeleteService(id);
+
+    if(!deleteAuthor) return res.status(404).send();
+
+    return res.status(200).send(deleteAuthor)
 }
 
 

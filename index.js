@@ -12,7 +12,7 @@ const conn =async () => {
 
     app.listen(PORT, () => {
         console.log(`Server listening on port ${PORT}`)
-    })
+    });
 }
 
 conn();
