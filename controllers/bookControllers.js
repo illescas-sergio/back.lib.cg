@@ -111,6 +111,7 @@ const bookUpdateController = async (req, res) => {
     }
     
     const updatedBook = await bookUpdateService(id, forUpdateData);
+    console.log(updatedBook)
     if(!updatedBook) return res.status(400).send(updatedBook)
 
     return res.send(updatedBook)
@@ -123,7 +124,7 @@ const bookDeleteController = async (req, res) => {
     if(!id || id.length < 24) return res.status(404).send("No se encuentra")
 
     const deletedBook = await bookDeleteService(id);
-    if(!deletedBook) return res.status(404).send();
+    if(deletedBook.deletedCount === 0) return res.status(404).send("No se encuentra");
 
     return res.status(200).send(deletedBook)
 }
