@@ -9,75 +9,15 @@ const {
 
 const booksRouter = Router();
 
-booksRouter.get("/", async (req, res) => {
+booksRouter.get("/", booksGetController)
 
-    const books = await booksGetController();
+booksRouter.get("/:id", bookGetController)
 
-    return res.status(200).send(books)
-   
-})
+booksRouter.post("/", bookPostController)
 
+booksRouter.put("/:id", bookUpdateController)
 
-booksRouter.get("/:id", async (req, res) => {
-
-    const {id} = req.params;
-
-    const book = await bookGetController(id);
-
-    return res.status(200).send(book)
-   
-})
-
-booksRouter.post("/", async (req, res) => {
-
-    const {author, publisher, title, category, price, release_date, description} = req.body;
-
-    const toValidateInfo = {
-        author,
-        publisher
-    }
-
-    const bookData = {
-        title,
-        category,
-        price,
-        release_date,
-        description
-    }
-    
-    const addedBook = await bookPostController(toValidateInfo, bookData);
-
-    return res.send(addedBook)
-})
-
-booksRouter.put("/:id", async (req, res) => {
-
-    const {id} = req.params;
-
-    const {title, category, price, release_date, description} = req.body;
-
-    const forUpdateData = {
-        title,
-        category,
-        price,
-        release_date,
-        description
-    }
-    
-    const updatedBook = await bookUpdateController(id, forUpdateData);
-
-    return res.send(updatedBook)
-})
-
-
-booksRouter.delete("/:id", async (req, res) => {
-
-    const {id} = req.params;
-
-    const deletedBook = await bookDeleteController(id);
-
-    return res.status(200).send(deletedBook)
-})
+booksRouter.delete("/:id", bookDeleteController)
 
 module.exports = {
     booksRouter

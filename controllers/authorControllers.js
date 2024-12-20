@@ -1,4 +1,3 @@
-const { authorModel } = require('../schemas/AuthorSchema.js');
 const { 
     authorsGetService,
     authorGetService,
@@ -16,9 +15,10 @@ const authorPostController = async (req, res) => {
     if(!first_name || !last_name || !dni || !country) return res.status(400).send("Faltan datos");
 
     const validDni = dniVal(dni)
+    console.log(validDni)
     if(!validDni) return res.status(400).send("Datos incorrectos");
 
-    const author = await authorPostService(first_name, last_name, validDni, country)
+    const author = await authorPostService(first_name, last_name, dni, country)
     if(!author) return res.status(400).send(author)
 
     return res.status(201).send(author)
@@ -49,6 +49,10 @@ const authorUpdateController = async (req, res) => {
 
     const {id} = req.params;
     if(!id || id.length < 24) return res.status(404).send("No se encuentra")
+
+        //Agregué esto
+    const author = await authorGetService(id);
+    if(!author) return res.status(404).send("No existe el autor")
 
     const {first_name, last_name, dni, country} = req.body;
     if(!first_name || !last_name || !dni || !country) return res.status(400).send("Faltan datos");

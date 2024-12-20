@@ -1,86 +1,131 @@
-const { bookModel } = require('../schemas/BookSchema.js');
 const { findAuthorByCompleteName } = require('../services/authorServices.js');
 const { findPublisherByName } = require('../services/publisherServices.js');
-const { nameSplit } = require('../helpers/nameSplit.js');
+const {
+    bookPostService,
+    booksGetService,
+    bookGetService,
+    bookUpdateService,
+    bookDeleteService,
+    bothAuthorsTestService
+} = require('../services/bookServices.js');
+const { nameSplit, authorsSeparator } = require('../helpers/authorNameProcessor.js');
+const { dateFormatter } = require('../helpers/dateFormatter.js');
 
 
-const bookPostController = async (toValidateInfo, bookData) => {
+const bookPostController = async (req, res) => {
 
+    const {author, publisher, title, category, price, release_date, description} = req.body;
+    if(!author || !publisher || !title || !category || !price || !release_date || !description) return res.status(400).send("Faltan datos");
     
-    const {author, publisher} = toValidateInfo;
+    const full = authorsSeparator(author)
 
-    const {first_name, last_name} = nameSplit(author)
+    let authorsIds = []
+    
+    if(full.length > 1){
+      
+        bothAuthorsTestService(authorsIds, full);
 
-    const authorExist = await findAuthorByCompleteName(first_name, last_name);
-
-    if(!authorExist){
-        return authorExist// Tirar error si no exste
+    } else {
+        const {first_name, last_name} = nameSplit(author);
+        const authorExist = await findAuthorByCompleteName(first_name, last_name);
+        if(authorExist.length < 1) return res.status(404).send("No se encuentra el autor");
+        const authorId = authorExist[0]._id;
+        authorsIds.push(authorId)
     }
-
+    
     const publisherExist = await findPublisherByName(publisher);
     
-    if(!publisherExist){
-        return publisherExist
+    if(publisherExist.length < 1) return res.status(404).send("No se encuentra la editorial");
+    const publisherId = publisherExist[0]._id;
+
+    const verifiedReleaseDate = dateFormatter(release_date)
+
+    
+    const bookData = {
+        author: authorsIds,
+        publisher: publisherId,
+        title: title,
+        category: category,
+        price: price,
+        release_date: verifiedReleaseDate,
+        description: description
+    }
+    
+    const addedBook = await bookPostService(bookData);
+    if(!addedBook) return res.status(400).send(addedBook)
+    
+
+    return res.send(addedBook)
+}
+
+
+const booksGetController =  async (req, res) => {
+
+    const {page, limit, category} = req.query;
+
+    const qry = {}
+    const opt = {}
+    if(!page || !limit){
+        opt['pagination'] = false;
+    } else {
+        opt['page'] = page;
+        opt['limit'] = limit;
+    }
+    if(category){
+        qry['category'] = category;
+    } else {
+        qry['category'] = null;
     }
 
-    const newBook = await bookModel.create({
+    const books = await booksGetService(qry,opt);
+    if(!books) return res.status(404).send(books)
 
-        author: authorExist[0],
-        publisher: publisherExist[0],
-        title: bookData.title,
-        category: bookData.category,
-        price: bookData.price,
-        release_date: bookData.release_date,
-        description: bookData.description
-    })
-
-    return newBook
+    return res.status(200).send(books)
 }
 
-    
+const bookGetController = async (req, res) => {
 
-    
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
 
+    const book = await bookGetService(id);
+    if(!book) return res.status(404).send(book)
 
-const booksGetController = async () => {
-
-    const books = await bookModel.find().exec();
-
-    return books
-}
-
-const bookGetController = async (bookId) => {
-
-    const book = await bookModel.findById(bookId).exec();
-
-    return book
+    return res.status(200).send(book)
 }
  
-const bookUpdateController = async (bookId, forUpdateData) => {
+const bookUpdateController = async (req, res) => {
 
-    const newBookData = await bookModel.updateOne({
-        _id: bookId
-    },{
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
 
-        title: forUpdateData.title,
-        category: forUpdateData.category,
-        price: forUpdateData.price,
-        release_date: forUpdateData.release_date,
-        description: forUpdateData.description
+    const {title, category, price, release_date, description} = req.body;
+    if(!title || !category || !price || !release_date || !description) return res.status(400).send("Faltan datos");
 
-    });
+    const forUpdateData = {
+        title,
+        category,
+        price,
+        release_date,
+        description
+    }
+    
+    const updatedBook = await bookUpdateService(id, forUpdateData);
+    if(!updatedBook) return res.status(400).send(updatedBook)
 
-    return newBookData
+    return res.send(updatedBook)
 }
 
 
-const bookDeleteController = async (bookId) => {
+const bookDeleteController = async (req, res) => {
 
-    const deleteBook = await bookModel.deleteOne({
-        _id: bookId
-    });
+    const {id} = req.params;
+    if(!id || id.length < 24) return res.status(404).send("No se encuentra")
 
-    return deleteBook
+    const deletedBook = await bookDeleteService(id);
+    if(!deletedBook) return res.status(404).send();
+
+    return res.status(200).send(deletedBook)
 }
 
 

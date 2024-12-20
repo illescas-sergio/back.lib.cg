@@ -1,4 +1,3 @@
-const { publisherModel } = require('../schemas/PublisherSchema.js');
 const {
     publisherPostService,
     publishersGetService,
@@ -51,14 +50,14 @@ const publisherUpdateController = async (req, res) => {
 
     const {id} = req.params;
     if(!id || id.length < 24) return res.status(404).send("No se encuentra")
-    const {name, cuil, address} = req.body;
 
+    const {name, cuil, address} = req.body;
     const validCuil = cuilVal(cuil)
     if(!validCuil) return res.status(400).send("Datos incorrectos");
 
     const updatedData = {
         name,
-        validCuil,
+        cuil,
         address
     }
 
