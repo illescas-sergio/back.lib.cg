@@ -16,7 +16,7 @@ const bookPostController = async (req, res) => {
 
     const {author, publisher, title, category, price, release_date, description} = req.body;
     if(!author || !publisher || !title || !category || !price || !release_date || !description) return res.status(400).send("Faltan datos");
-    
+    console.log(author)
     const full = authorsSeparator(author)
 
     let authorsIds = []

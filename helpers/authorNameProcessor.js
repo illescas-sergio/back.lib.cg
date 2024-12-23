@@ -8,7 +8,7 @@ const authorsSeparator = (str) => {
         
         return []
     }
-
+    
     return array
 }
 

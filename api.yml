@@ -1,18 +1,300 @@
 openapi: 3.0.0
 info:
   title: library API
-  version: 1.0.0
+  description: |-
+    Prueba tecnica backend.
+tags:
+  - name: authors
+    description: authors CRUD operations
+  - name: publishers
+    description: publishers CRUD operations
+  - name: books
+    description: books CRUD operations
+    warning:
+      description: books post only with registered authors and publishers
 paths:
-  /publishers/:
+  /authors/:
     get:
-      summary: publishers list
+      tags:
+        - authors
+      summary: Retrieve author's list
       responses:
-        "200":
-          description: publishers list
+        '200':
+          description: Successful operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: ./schemas/publishers.yml
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Not found
+    post:
+      tags:
+        - authors
+      summary: Add a new author to author
+      requestBody:
+        description: Add author
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'          
+        '400':
+          description: Missing or incorrect data
+  /authors/{id}:
+    put:
+      tags:
+        - authors
+      summary: Update author
+      parameters:
+        - name: id
+          in: path
+          description: author id
+          required: true
+      requestBody:
+        description: Update author info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+        required: true
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'          
+        '400':
+          description: Missing or incorrect data
+        '404':
+          description: Not found / Author does not exist
+    delete:
+      tags:
+        - authors
+      summary: Delete author
+      parameters:
+        - name: id
+          in: path
+          description: author id
+          required: true
+      responses:
+        '200':
+          description: Deleted        
+        '404':
+          description: Not found / Author does not exist  
+  /publishers/:
+    get:
+      tags:
+        - publishers
+      summary: Retrieve publisher's list
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
+        '404':
+          description: Not found
+    post:
+      tags:
+        - publishers
+      summary: Add a new publisher to publisher's list
+      requestBody:
+        description: Add publisher
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Publisher'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'          
+        '400':
+          description: Missing or incorrect data
+  /publisher/{id}:
+    put:
+      tags:
+        - publishers
+      summary: Update publisher
+      parameters:
+        - name: id
+          in: path
+          description: publisher id
+          required: true
+      requestBody:
+        description: Update publisher info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Publisher'
+        required: true
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'          
+        '400':
+          description: Missing or incorrect data
+        '404':
+          description: Not found / publisher does not exist
+    delete:
+      tags:
+        - publishers
+      summary: Delete publisher
+      parameters:
+        - name: id
+          in: path
+          description: publisher id
+          required: true
+      responses:
+        '200':
+          description: Deleted        
+        '404':
+          description: Not found / publisher does not exist  
+  /books/:
+    get:
+      tags:
+        - books
+      summary: Retrieve book's list
+      parameters:
+        - name: limit
+          in: query
+          example: "10"
+        - name: page
+          in: query
+          example: "1"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Not found
+    post:
+      tags:
+        - books
+      summary: Add a new book to book's list
+      requestBody:
+        description: Add book
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'          
+        '400':
+          description: Missing or incorrect data
+  /books/{id}:
+    put:
+      tags:
+        - books
+      summary: Update book
+      parameters:
+        - name: id
+          in: path
+          description: book id
+          required: true
+      requestBody:
+        description: Update book info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'          
+        '400':
+          description: Missing or incorrect data
+        '404':
+          description: Not found / book does not exist
+    delete:
+      tags:
+        - books
+      summary: Delete book
+      parameters:
+        - name: id
+          in: path
+          description: book id
+          required: true
+      responses:
+        '200':
+          description: Deleted        
+        '404':
+          description: Not found / book does not exist  
+components:
+  schemas:
+    Author:
+      type: object
+      properties:
+        first_name:
+          type: string,
+        last_name:
+          type: string,
+        dni:
+          type: number
+          example: 12345678
+        country:
+          type: string
+        books:
+          type: array
+          description: objectId
+    Publisher:
+      type: object
+      properties:
+        name:
+          type: string,
+        cuil:
+          type: string
+          example: '12-12345678-1'
+        address:
+          type: string
+        books:
+          type: array
+          description: objectId
+    Book:
+      type: object
+      properties:
+        author:
+          type: string
+        publisher:
+          type: string
+          description: nombre del editor
+        title:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        release_date:
+          type: string
+          format: date
+        description:
+          type: string
     
