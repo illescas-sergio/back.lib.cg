@@ -6,7 +6,7 @@ const app = require('./app.js');
 
 
 const conn =async () => {
-    await mongoose.connect(process.env.DB_URL);
+    await mongoose.connect(DB_URL);
 
     console.log("conectado a mongoDB")
 

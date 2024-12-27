@@ -28,7 +28,9 @@ const swaggerDocs = YAML.load('./api.yml')
 // Swagger UI
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-
+app.use("/hola", (req, res) => {
+  return res.send("chau")
+});
 app.use("/", router);
 
 

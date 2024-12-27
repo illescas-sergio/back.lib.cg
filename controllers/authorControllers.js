@@ -15,7 +15,7 @@ const authorPostController = async (req, res) => {
     if(!first_name || !last_name || !dni || !country) return res.status(400).send("Faltan datos");
 
     const validDni = dniVal(dni)
-    console.log(validDni)
+    
     if(!validDni) return res.status(400).send("Datos incorrectos");
 
     const author = await authorPostService(first_name, last_name, dni, country)
