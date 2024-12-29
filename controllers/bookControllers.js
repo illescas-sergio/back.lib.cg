@@ -6,7 +6,8 @@ const {
     bookGetService,
     bookUpdateService,
     bookDeleteService,
-    bothAuthorsTestService
+    bothAuthorsTestService,
+    withAuthors
 } = require('../services/bookServices.js');
 const { nameSplit, authorsSeparator } = require('../helpers/authorNameProcessor.js');
 const { dateFormatter } = require('../helpers/dateFormatter.js');
@@ -22,9 +23,23 @@ const bookPostController = async (req, res) => {
     let authorsIds = []
     
     if(full.length > 1){
-      
-        bothAuthorsTestService(authorsIds, full);
 
+        const arrayAuthors = bothAuthorsTestService(full)
+        console.log(arrayAuthors)
+      
+        try {
+            for (const el of arrayAuthors) {
+                const { first_name, last_name } = el;
+                const authorExist = await findAuthorByCompleteName(first_name, last_name);
+                if (authorExist.length < 1) {
+                    throw new Error(`Autor no encontrado: ${first_name} ${last_name}`);
+                }
+                authorsIds.push(authorExist[0]._id);
+            }
+        } catch (err) {
+            return res.status(404).send(err.message);
+        }
+        
     } else {
         const {first_name, last_name} = nameSplit(author);
         const authorExist = await findAuthorByCompleteName(first_name, last_name);

@@ -87,22 +87,16 @@ const findBookByName = async (name) => {
     return book
 }
 
-const bothAuthorsTestService = async (arr, full) => {
+const bothAuthorsTestService = (full) => {
 
     const authors = [];
     
     full.forEach((el) => {
         authors.push(nameSplit(el)) ;
     })
-    authors.forEach(async(el) => {
-        const {first_name, last_name} = el;
-        const authorExist = await findAuthorByCompleteName(first_name, last_name);
-        
-        if(authorExist.length < 1) return res.status(404).send("No se encuentra el autor");
-       
-        arr.push(authorExist[0]._id);
-    })
+    return authors
 }
+
 
 module.exports = {
     bookPostService,
@@ -111,5 +105,5 @@ module.exports = {
     bookUpdateService,
     bookDeleteService,
     findBookByName,
-    bothAuthorsTestService
+    bothAuthorsTestService,
 }

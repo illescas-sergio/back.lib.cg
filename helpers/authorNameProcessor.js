@@ -1,10 +1,10 @@
 const authorsSeparator = (str) => {
 
     const arr = str.split(',')
-
+    
     const array = arr.map(el => el.trim())
-
-    if(array.length === 1){
+    
+    if(array.length <= 1){
         
         return []
     }
